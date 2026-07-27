@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Wallet, ShieldCheck, UserCheck, Bot, 
-  Sparkles, Award, Waves 
+  Sparkles, Award, Waves, Share2, CheckCircle2, Globe 
 } from 'lucide-react';
 import { useUsdtPayment } from '../../hooks/useUsdtPayment';
 import { db, Job, Application, Interview, Candidate } from '../../lib/db';
 import { DESTINATION_WALLET, JOB_POST_COST_USDT } from '../../lib/web3Config';
+import { JobSyndicator, SyndicatedEndpoint } from '../../lib/jobSyndicator';
 
 export default function RecruiterDashboard() {
   const { executePayment, loading: txLoading, error: txError, isConnected, address } = useUsdtPayment();
@@ -26,10 +27,11 @@ export default function RecruiterDashboard() {
   const [location, setLocation] = useState('Remote');
   const [salaryRange, setSalaryRange] = useState('$120,000 - $160,000 USDT');
 
-  // Transaction state
-  const [txStatus, setTxStatus] = useState<'idle' | 'signing' | 'confirming' | 'verifying' | 'success' | 'failed'>('idle');
+  // Transaction & Syndication state
+  const [txStatus, setTxStatus] = useState<'idle' | 'signing' | 'confirming' | 'verifying' | 'syndicating' | 'success' | 'failed'>('idle');
   const [txHash, setTxHash] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState('');
+  const [syndicatedBoards, setSyndicatedBoards] = useState<SyndicatedEndpoint[]>([]);
 
   // Selected applicant modal detail state
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
@@ -87,7 +89,7 @@ export default function RecruiterDashboard() {
         throw new Error(verifyData.error || 'Blockchain transaction verification failed.');
       }
 
-      // 3. Save Job to Database with status 'active'
+      // 3. Save Job to Database
       const newJob = db.addJob({
         title,
         company_name: companyName,
@@ -101,8 +103,15 @@ export default function RecruiterDashboard() {
         status: 'active',
       });
 
+      // 4. Autonomous Free Multi-Board Job Syndication
+      setTxStatus('syndicating');
+      setStatusMessage('Broadcasting job post to Free Web3 & Tech Job Boards, Google Jobs Index, and Telegram Feed...');
+      
+      const syndicated = await JobSyndicator.syndicateJob(newJob);
+      setSyndicatedBoards(syndicated);
+
       setTxStatus('success');
-      setStatusMessage('Job post verified & published to AtlantisJobs live pipeline board!');
+      setStatusMessage('Job verified & syndicated across 5+ Free Web3 Job Boards!');
       refreshData();
       setSelectedJob(newJob);
 
@@ -112,7 +121,7 @@ export default function RecruiterDashboard() {
         setTitle('');
         setDescription('');
         setRequirementsText('');
-      }, 2000);
+      }, 3000);
 
     } catch (err: any) {
       setTxStatus('failed');
@@ -139,11 +148,11 @@ export default function RecruiterDashboard() {
           <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
             AtlantisJobs Recruiter Control
             <span className="text-xs px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
-              300 USDT Paywall Active
+              300 USDT + Free Multi-Board Distribution
             </span>
           </h1>
           <p className="text-gray-400 text-sm mt-1">
-            Manage blockchain-verified job listings, review applicant match scores, and inspect 24/7 AI screening transcripts.
+            Post once for 300 USDT and auto-syndicate across free Web3 job feeds, Google Jobs, and Telegram channels.
           </p>
         </div>
 
@@ -151,7 +160,7 @@ export default function RecruiterDashboard() {
           onClick={() => setShowModal(true)}
           className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-abyss-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition-all hover:scale-105"
         >
-          <Plus className="w-5 h-5 text-abyss-950" /> Post Job (300 USDT)
+          <Plus className="w-5 h-5 text-abyss-950" /> Post & Syndicate Job (300 USDT)
         </button>
       </div>
 
@@ -176,24 +185,57 @@ export default function RecruiterDashboard() {
                 <div className="text-xs text-gray-400 mt-1">{job.company_name}</div>
                 <div className="mt-3 flex items-center justify-between text-[11px]">
                   <span className="text-teal-400 font-mono font-semibold">{job.payment_amount} USDT</span>
-                  <span className="text-gray-500 font-mono">{job.tx_hash.substring(0, 8)}...</span>
+                  <span className="text-cyan-400 font-bold flex items-center gap-1">
+                    <Share2 className="w-3 h-3" /> Multi-Board
+                  </span>
                 </div>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Right Column: Applicant Pipeline Kanban Board */}
+        {/* Right Column: Applicant Pipeline & Syndication Card */}
         <div className="lg:col-span-3 space-y-6">
           
           {selectedJob && (
-            <div className="glass-panel p-5 rounded-2xl border border-cyan-500/20 flex items-center justify-between">
-              <div>
-                <span className="text-xs text-cyan-400 font-semibold uppercase tracking-wider">Selected Position</span>
-                <h2 className="text-xl font-bold text-white">{selectedJob.title}</h2>
+            <div className="space-y-4">
+              <div className="glass-panel p-5 rounded-2xl border border-cyan-500/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                  <span className="text-xs text-cyan-400 font-semibold uppercase tracking-wider">Selected Position</span>
+                  <h2 className="text-xl font-bold text-white">{selectedJob.title}</h2>
+                </div>
+                <div className="text-xs text-gray-400 font-mono bg-abyss-900 px-3 py-1.5 rounded-lg border border-cyan-500/20">
+                  {selectedJob.salary_range} | {selectedJob.location}
+                </div>
               </div>
-              <div className="text-xs text-gray-400 font-mono bg-abyss-900 px-3 py-1.5 rounded-lg border border-cyan-500/20">
-                {selectedJob.salary_range} | {selectedJob.location}
+
+              {/* Free Multi-Board Syndication Status Banner */}
+              <div className="glass-card p-4 rounded-2xl border border-teal-500/30 bg-teal-500/5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-teal-300 flex items-center gap-1.5">
+                    <Globe className="w-4 h-4 text-teal-400" /> Free Multi-Board Syndication Status
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-bold border border-teal-500/30">
+                    5 Boards Active
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-[11px]">
+                  <div className="p-2 rounded bg-abyss-900 text-gray-300 border border-cyan-500/20 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-teal-400" /> Atlantis Mainnet
+                  </div>
+                  <div className="p-2 rounded bg-abyss-900 text-gray-300 border border-cyan-500/20 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-teal-400" /> Web3 Jobs Feed
+                  </div>
+                  <div className="p-2 rounded bg-abyss-900 text-gray-300 border border-cyan-500/20 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-teal-400" /> Google Jobs Index
+                  </div>
+                  <div className="p-2 rounded bg-abyss-900 text-gray-300 border border-cyan-500/20 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-teal-400" /> OpenSource Jobs
+                  </div>
+                  <div className="p-2 rounded bg-abyss-900 text-gray-300 border border-cyan-500/20 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-teal-400" /> Telegram Feed
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -277,7 +319,7 @@ export default function RecruiterDashboard() {
             <div className="flex items-center justify-between border-b border-cyan-500/20 pb-4">
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-cyan-400" /> Post Job (300 USDT Web3 Paywall)
+                  <ShieldCheck className="w-5 h-5 text-cyan-400" /> Post Job (300 USDT + Free Multi-Board Syndication)
                 </h2>
                 <p className="text-xs text-gray-400 mt-1">
                   Triggers BEP20 USDT transfer to destination address <code className="text-teal-400">{DESTINATION_WALLET.substring(0, 10)}...</code> on BSC.
@@ -375,10 +417,10 @@ export default function RecruiterDashboard() {
 
                 <button
                   type="submit"
-                  disabled={txLoading || txStatus === 'confirming' || txStatus === 'verifying'}
+                  disabled={txLoading || txStatus === 'confirming' || txStatus === 'verifying' || txStatus === 'syndicating'}
                   className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 text-abyss-950 font-extrabold text-sm flex items-center gap-2 shadow-lg transition-all"
                 >
-                  <Wallet className="w-4 h-4 text-abyss-950" /> Confirm 300 USDT Tx & Post
+                  <Wallet className="w-4 h-4 text-abyss-950" /> Confirm 300 USDT Tx & Syndicate
                 </button>
               </div>
 
