@@ -1,0 +1,40 @@
+name: Deploy AtlantisJobs to Vercel & Production
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Verify Production Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_BSC_RPC_URL: https://bsc-dataseed.binance.org/
+          NEXT_PUBLIC_DESTINATION_WALLET: '0xe2f8d466ba2031335d1291bc058d85aa050114ec'
+          NEXT_PUBLIC_USDT_CONTRACT_ADDRESS: '0x55d398326f99059ff775485246999027b3197955'
+
+      - name: Deploy to Vercel Action
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+          alias-domains: atlantis-jobs.vercel.app
