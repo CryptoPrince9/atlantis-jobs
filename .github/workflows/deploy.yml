@@ -13,22 +13,23 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 24
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 22
 
       - name: Install Dependencies
         run: npm install
 
-      - name: Verify Production Build
+      - name: Verify Next.js Production Build
         run: npm run build
         env:
           NEXT_PUBLIC_BSC_RPC_URL: https://bsc-dataseed.binance.org/
           NEXT_PUBLIC_DESTINATION_WALLET: '0xe2f8d466ba2031335d1291bc058d85aa050114ec'
           NEXT_PUBLIC_USDT_CONTRACT_ADDRESS: '0x55d398326f99059ff775485246999027b3197955'
 
-      - name: Deploy to Vercel Action
+      - name: Deploy to Vercel (If Token Provided)
+        if: secrets.VERCEL_TOKEN != ''
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
