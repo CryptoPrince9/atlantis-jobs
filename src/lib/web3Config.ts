@@ -1,4 +1,4 @@
-import { createConfig, http } from 'wagmi';
+import { createConfig, http, injected } from 'wagmi';
 import { bsc } from 'wagmi/chains';
 import { parseUnits, formatUnits } from 'viem';
 
@@ -38,6 +38,7 @@ export const USDT_ABI = [
 
 export const wagmiConfig = createConfig({
   chains: [bsc],
+  connectors: [injected()],
   transports: {
     [bsc.id]: http(process.env.NEXT_PUBLIC_BSC_RPC_URL || 'https://bsc-dataseed.binance.org/'),
   },

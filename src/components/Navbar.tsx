@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAccount, useConnect, useDisconnect, useBalance } from 'wagmi';
-import { injected } from 'wagmi/connectors';
+import { useAccount, useConnect, useDisconnect, injected } from 'wagmi';
 import { Bot, Wallet, ShieldCheck, Zap, UserCheck, Briefcase, Sparkles, LogOut, Cpu } from 'lucide-react';
 import { TARGET_CHAIN } from '../lib/web3Config';
 
@@ -13,8 +12,6 @@ export function Navbar() {
   const { address, isConnected } = useAccount();
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
-
-  const [showWalletModal, setShowWalletModal] = useState(false);
 
   const formatAddress = (addr?: string) => {
     if (!addr) return '';
