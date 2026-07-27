@@ -28,8 +28,7 @@ jobs:
           NEXT_PUBLIC_DESTINATION_WALLET: '0xe2f8d466ba2031335d1291bc058d85aa050114ec'
           NEXT_PUBLIC_USDT_CONTRACT_ADDRESS: '0x55d398326f99059ff775485246999027b3197955'
 
-      - name: Deploy to Vercel (If Token Provided)
-        if: secrets.VERCEL_TOKEN != ''
+      - name: Deploy to Vercel Action
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
