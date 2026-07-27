@@ -9,7 +9,7 @@ import { AIEngine, InterviewEvaluation } from '../../../lib/aiEngine';
 export default function AIInterviewRoom() {
   const params = useParams();
   const router = useRouter();
-  const applicationId = params.id as string;
+  const applicationId = (params?.id as string) || 'demo';
 
   const [application, setApplication] = useState<Application | null>(null);
   const [job, setJob] = useState<Job | null>(null);
@@ -28,22 +28,21 @@ export default function AIInterviewRoom() {
 
     const apps = db.getApplications();
     const app = apps.find(a => a.id === applicationId);
-    if (!app) return;
+    const foundJob = app ? db.getJobs().find(j => j.id === app.job_id) : db.getJobs()[0];
 
-    setApplication(app);
-    const foundJob = db.getJobs().find(j => j.id === app.job_id);
+    if (app) setApplication(app);
     setJob(foundJob || null);
 
     // Initialize or load interview
-    let existingInt = db.getInterview(app.id);
+    let existingInt = db.getInterview(app ? app.id : applicationId);
     if (!existingInt) {
       existingInt = db.saveInterview({
         id: `int-${Date.now()}`,
-        application_id: app.id,
+        application_id: app ? app.id : applicationId,
         transcript: [
           {
             role: 'ai',
-            content: `Hello! Welcome to your 24/7 AtlantisJobs AI Technical Screening Interview for **${foundJob?.title || 'Engineer'}** at **${foundJob?.company_name || 'Web3 Org'}**.\n\nTo begin question 1 of 5: Could you please introduce your technical background and highlight your experience with ${foundJob?.requirements.slice(0, 3).join(', ') || 'Web3'}?`,
+            content: `Hello! Welcome to your 24/7 AtlantisJobs AI Technical Screening Interview for **${foundJob?.title || 'Senior Engineer'}** at **${foundJob?.company_name || 'Web3 Org'}**.\n\nTo begin question 1 of 5: Could you please introduce your technical background and highlight your experience with ${foundJob?.requirements.slice(0, 3).join(', ') || 'Web3'}?`,
             timestamp: new Date().toISOString(),
           }
         ],
