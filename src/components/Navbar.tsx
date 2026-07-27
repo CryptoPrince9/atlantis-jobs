@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAccount, useConnect, useDisconnect, injected } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { Waves, Wallet, ShieldCheck, UserCheck, Briefcase, Sparkles, LogOut, Compass, CheckCircle2, Zap } from 'lucide-react';
 import { TARGET_CHAIN } from '../lib/web3Config';
 import { db } from '../lib/db';
@@ -11,7 +11,7 @@ import { db } from '../lib/db';
 export function Navbar() {
   const pathname = usePathname();
   const { address, isConnected } = useAccount();
-  const { connect } = useConnect();
+  const { connectors, connect } = useConnect();
   const { disconnect } = useDisconnect();
 
   const [showWalletModal, setShowWalletModal] = useState(false);
@@ -25,12 +25,29 @@ export function Navbar() {
     return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
   };
 
-  const handleConnectInjected = () => {
+  const handleConnectInjected = async () => {
     try {
-      connect({ connector: injected() });
+      // 1. Direct browser MetaMask request
+      if (typeof window !== 'undefined' && (window as any).ethereum) {
+        const accounts = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+        if (accounts && accounts.length > 0) {
+          setCustomWallet(accounts[0]);
+          db.saveCandidate({
+            wallet_address: accounts[0],
+            name: 'MetaMask Developer',
+            parsed_skills: ['Solidity', 'Next.js', 'EVM', 'BSC'],
+          });
+        }
+      }
+
+      // 2. Wagmi connector trigger
+      if (connectors && connectors.length > 0) {
+        connect({ connector: connectors[0] });
+      }
+
       setShowWalletModal(false);
-    } catch (e) {
-      console.warn('Injected connect error:', e);
+    } catch (e: any) {
+      console.warn('MetaMask connect fallback:', e);
       handleConnectSimulated();
     }
   };
@@ -175,7 +192,7 @@ export function Navbar() {
                   </div>
                   <div className="text-left">
                     <div className="font-bold text-sm text-white group-hover:text-cyan-400">MetaMask / Injected Wallet</div>
-                    <div className="text-xs text-gray-400">Connect browser EVM wallet</div>
+                    <div className="text-xs text-gray-400">Triggers MetaMask eth_requestAccounts</div>
                   </div>
                 </div>
                 <Zap className="w-4 h-4 text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
