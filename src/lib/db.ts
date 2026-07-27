@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = (supabaseUrl && supabaseAnonKey)
+export const supabase = (supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith('http'))
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
@@ -63,8 +63,13 @@ export interface Interview {
   completed_at?: string;
 }
 
-// In-Memory Persistent Fallback Store for Instant Testing & Offline Capability
+// Persistent Storage Engine (localStorage + Supabase + Memory Fallback)
 class PersistentStore {
+  private jobsKey = 'atlantis_jobs_db';
+  private candidatesKey = 'atlantis_candidates_db';
+  private applicationsKey = 'atlantis_applications_db';
+  private interviewsKey = 'atlantis_interviews_db';
+
   private jobs: Job[] = [
     {
       id: 'job-1',
@@ -145,32 +150,76 @@ class PersistentStore {
     }
   ];
 
+  constructor() {
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage() {
+    if (typeof window !== 'undefined') {
+      try {
+        const storedJobs = localStorage.getItem(this.jobsKey);
+        if (storedJobs) this.jobs = JSON.parse(storedJobs);
+
+        const storedCand = localStorage.getItem(this.candidatesKey);
+        if (storedCand) this.candidates = JSON.parse(storedCand);
+
+        const storedApps = localStorage.getItem(this.applicationsKey);
+        if (storedApps) this.applications = JSON.parse(storedApps);
+
+        const storedInt = localStorage.getItem(this.interviewsKey);
+        if (storedInt) this.interviews = JSON.parse(storedInt);
+      } catch (err) {
+        console.warn('LocalStorage load warning:', err);
+      }
+    }
+  }
+
+  private syncToStorage() {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(this.jobsKey, JSON.stringify(this.jobs));
+        localStorage.setItem(this.candidatesKey, JSON.stringify(this.candidates));
+        localStorage.setItem(this.applicationsKey, JSON.stringify(this.applications));
+        localStorage.setItem(this.interviewsKey, JSON.stringify(this.interviews));
+      } catch (err) {
+        console.warn('LocalStorage sync warning:', err);
+      }
+    }
+  }
+
   public getJobs(): Job[] {
+    this.loadFromStorage();
     return this.jobs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
 
   public addJob(job: Omit<Job, 'id' | 'created_at'>): Job {
+    this.loadFromStorage();
     const newJob: Job = {
       ...job,
       id: `job-${Date.now()}`,
       created_at: new Date().toISOString(),
     };
     this.jobs.unshift(newJob);
+    this.syncToStorage();
     return newJob;
   }
 
   public getCandidates(): Candidate[] {
+    this.loadFromStorage();
     return this.candidates.sort((a, b) => (b.is_premium ? 1 : 0) - (a.is_premium ? 1 : 0));
   }
 
   public getCandidateByWallet(wallet: string): Candidate | undefined {
+    this.loadFromStorage();
     return this.candidates.find(c => c.wallet_address.toLowerCase() === wallet.toLowerCase());
   }
 
   public saveCandidate(candidate: Partial<Candidate> & { wallet_address: string }): Candidate {
+    this.loadFromStorage();
     const existingIndex = this.candidates.findIndex(c => c.wallet_address.toLowerCase() === candidate.wallet_address.toLowerCase());
     if (existingIndex >= 0) {
       this.candidates[existingIndex] = { ...this.candidates[existingIndex], ...candidate };
+      this.syncToStorage();
       return this.candidates[existingIndex];
     } else {
       const newCand: Candidate = {
@@ -184,11 +233,13 @@ class PersistentStore {
         ...candidate,
       };
       this.candidates.unshift(newCand);
+      this.syncToStorage();
       return newCand;
     }
   }
 
   public getApplications(jobId?: string): Application[] {
+    this.loadFromStorage();
     if (jobId) {
       return this.applications.filter(a => a.job_id === jobId);
     }
@@ -196,31 +247,40 @@ class PersistentStore {
   }
 
   public addApplication(app: Omit<Application, 'id' | 'created_at'>): Application {
+    this.loadFromStorage();
     const newApp: Application = {
       ...app,
       id: `app-${Date.now()}`,
       created_at: new Date().toISOString(),
     };
     this.applications.unshift(newApp);
+    this.syncToStorage();
     return newApp;
   }
 
   public updateApplicationStatus(id: string, status: Application['status']): void {
+    this.loadFromStorage();
     const app = this.applications.find(a => a.id === id);
-    if (app) app.status = status;
+    if (app) {
+      app.status = status;
+      this.syncToStorage();
+    }
   }
 
   public getInterview(id: string): Interview | undefined {
+    this.loadFromStorage();
     return this.interviews.find(i => i.id === id || i.application_id === id);
   }
 
   public saveInterview(interview: Interview): Interview {
+    this.loadFromStorage();
     const existingIndex = this.interviews.findIndex(i => i.id === interview.id);
     if (existingIndex >= 0) {
       this.interviews[existingIndex] = interview;
     } else {
       this.interviews.push(interview);
     }
+    this.syncToStorage();
     return interview;
   }
 }
