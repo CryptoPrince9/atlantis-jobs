@@ -4,8 +4,8 @@
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 11, 15, 25;
-  --background-end-rgb: 6, 9, 15;
+  --background-start-rgb: 3, 7, 18;
+  --background-end-rgb: 11, 19, 41;
 }
 
 body {
@@ -21,47 +21,47 @@ body {
   overflow-x: hidden;
 }
 
-/* Glassmorphism utilities */
+/* Atlantis Glassmorphism utilities */
 .glass-panel {
-  background: rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(11, 19, 41, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(6, 182, 212, 0.15);
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(20, 184, 166, 0.01) 100%);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(6, 182, 212, 0.12);
   transition: all 0.3s ease;
 }
 
 .glass-card:hover {
-  border-color: rgba(16, 185, 129, 0.4);
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.15);
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
   transform: translateY(-2px);
 }
 
-.glow-emerald {
-  box-shadow: 0 0 30px rgba(16, 185, 129, 0.25);
+.glow-cyan {
+  box-shadow: 0 0 35px rgba(6, 182, 212, 0.25);
 }
 
-.glow-indigo {
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.25);
+.glow-gold {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.25);
 }
 
-/* Custom Scrollbar */
+/* Custom Oceanic Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0f19;
+  background: #030712;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f2937;
+  background: #111e38;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: #06b6d4;
 }

@@ -1,5 +1,5 @@
 {
-  "name": "ai-recruitment-platform",
+  "name": "atlantis-jobs",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -10,8 +10,12 @@
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.0",
+    "@reown/appkit": "^1.7.8",
+    "@safe-global/safe-apps-sdk": "^9.1.0",
     "@supabase/supabase-js": "^2.48.0",
     "@tanstack/react-query": "^5.64.0",
+    "@types/lodash": "^4.17.15",
+    "@walletconnect/time": "^1.0.2",
     "clsx": "^2.1.1",
     "framer-motion": "^12.0.0",
     "lucide-react": "^0.474.0",
@@ -19,6 +23,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tailwind-merge": "^3.0.1",
+    "unstorage": "^1.15.0",
     "viem": "^2.22.1",
     "wagmi": "^2.14.9"
   },

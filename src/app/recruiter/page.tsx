@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Plus, Wallet, ShieldCheck, CheckCircle2, Clock, 
-  AlertCircle, ChevronRight, UserCheck, Bot, FileText, 
-  Sparkles, ExternalLink, Filter, Search, Award
+  Plus, Wallet, ShieldCheck, UserCheck, Bot, 
+  Sparkles, Award, Waves 
 } from 'lucide-react';
 import { useUsdtPayment } from '../../hooks/useUsdtPayment';
 import { db, Job, Application, Interview, Candidate } from '../../lib/db';
@@ -68,7 +67,7 @@ export default function RecruiterDashboard() {
       setTxStatus('confirming');
       setStatusMessage(`Transaction submitted: ${hash.substring(0, 10)}... Waiting for block confirmation on BSC...`);
 
-      // 2. Simulate/Perform server-side blockchain verification
+      // 2. Perform server-side blockchain verification
       setTxStatus('verifying');
       setStatusMessage('Verifying transaction receipt on BNB Smart Chain RPC node...');
 
@@ -103,7 +102,7 @@ export default function RecruiterDashboard() {
       });
 
       setTxStatus('success');
-      setStatusMessage('Job post verified & published to live pipeline board!');
+      setStatusMessage('Job post verified & published to AtlantisJobs live pipeline board!');
       refreshData();
       setSelectedJob(newJob);
 
@@ -135,11 +134,11 @@ export default function RecruiterDashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-gray-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 glass-panel p-6 rounded-2xl border border-cyan-500/20">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
-            Recruiter Mission Control
-            <span className="text-xs px-3 py-1 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30">
+            AtlantisJobs Recruiter Control
+            <span className="text-xs px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
               300 USDT Paywall Active
             </span>
           </h1>
@@ -150,9 +149,9 @@ export default function RecruiterDashboard() {
 
         <button
           onClick={() => setShowModal(true)}
-          className="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-emerald-600 hover:from-brand-600 hover:to-emerald-700 text-dark-900 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all hover:scale-105"
+          className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-abyss-950 font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 transition-all hover:scale-105"
         >
-          <Plus className="w-5 h-5 text-dark-900" /> Post Job (300 USDT)
+          <Plus className="w-5 h-5 text-abyss-950" /> Post Job (300 USDT)
         </button>
       </div>
 
@@ -161,7 +160,7 @@ export default function RecruiterDashboard() {
         
         {/* Left Column: Job Selector */}
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Active Job Posts</h3>
+          <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Active Atlantis Job Posts</h3>
           <div className="space-y-3">
             {jobs.map(job => (
               <button
@@ -169,14 +168,14 @@ export default function RecruiterDashboard() {
                 onClick={() => setSelectedJob(job)}
                 className={`w-full text-left p-4 rounded-xl transition-all border ${
                   selectedJob?.id === job.id
-                    ? 'bg-brand-500/10 border-brand-500/40 text-white shadow-lg shadow-emerald-500/10'
-                    : 'glass-card border-gray-800 text-gray-300 hover:border-gray-700'
+                    ? 'bg-cyan-500/10 border-cyan-500/40 text-white shadow-lg shadow-cyan-500/10'
+                    : 'glass-card border-cyan-500/10 text-gray-300 hover:border-cyan-500/30'
                 }`}
               >
                 <div className="font-bold text-sm text-white">{job.title}</div>
                 <div className="text-xs text-gray-400 mt-1">{job.company_name}</div>
                 <div className="mt-3 flex items-center justify-between text-[11px]">
-                  <span className="text-emerald-400 font-mono font-semibold">{job.payment_amount} USDT</span>
+                  <span className="text-teal-400 font-mono font-semibold">{job.payment_amount} USDT</span>
                   <span className="text-gray-500 font-mono">{job.tx_hash.substring(0, 8)}...</span>
                 </div>
               </button>
@@ -188,12 +187,12 @@ export default function RecruiterDashboard() {
         <div className="lg:col-span-3 space-y-6">
           
           {selectedJob && (
-            <div className="glass-panel p-5 rounded-2xl border border-gray-800 flex items-center justify-between">
+            <div className="glass-panel p-5 rounded-2xl border border-cyan-500/20 flex items-center justify-between">
               <div>
-                <span className="text-xs text-brand-400 font-semibold uppercase tracking-wider">Selected Position</span>
+                <span className="text-xs text-cyan-400 font-semibold uppercase tracking-wider">Selected Position</span>
                 <h2 className="text-xl font-bold text-white">{selectedJob.title}</h2>
               </div>
-              <div className="text-xs text-gray-400 font-mono bg-dark-800 px-3 py-1.5 rounded-lg border border-gray-800">
+              <div className="text-xs text-gray-400 font-mono bg-abyss-900 px-3 py-1.5 rounded-lg border border-cyan-500/20">
                 {selectedJob.salary_range} | {selectedJob.location}
               </div>
             </div>
@@ -212,12 +211,12 @@ export default function RecruiterDashboard() {
               };
 
               return (
-                <div key={status} className="bg-dark-800/50 p-4 rounded-2xl border border-gray-800 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-gray-800">
+                <div key={status} className="bg-abyss-900/60 p-4 rounded-2xl border border-cyan-500/20 space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-cyan-500/10">
                     <span className="text-xs font-bold uppercase tracking-wider text-gray-300">
                       {statusTitles[status]}
                     </span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-brand-400 font-bold">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-abyss-800 text-cyan-400 font-bold">
                       {statusApps.length}
                     </span>
                   </div>
@@ -229,12 +228,12 @@ export default function RecruiterDashboard() {
                         <div
                           key={app.id}
                           onClick={() => handleSelectApplication(app)}
-                          className="glass-card p-3.5 rounded-xl border border-gray-800 cursor-pointer hover:border-brand-500/40 transition-all space-y-2"
+                          className="glass-card p-3.5 rounded-xl border border-cyan-500/20 cursor-pointer hover:border-cyan-500/50 transition-all space-y-2"
                         >
                           <div className="flex items-center justify-between">
                             <span className="font-bold text-sm text-white">{app.candidate_name || 'Candidate'}</span>
                             {cand?.is_premium && (
-                              <span className="text-[10px] px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 font-bold border border-yellow-500/30 flex items-center gap-1">
+                              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30 flex items-center gap-1">
                                 <Award className="w-3 h-3" /> BOOST
                               </span>
                             )}
@@ -242,7 +241,7 @@ export default function RecruiterDashboard() {
 
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-gray-400">Match Score:</span>
-                            <span className={`font-bold ${app.match_score >= 85 ? 'text-emerald-400' : 'text-yellow-400'}`}>
+                            <span className={`font-bold ${app.match_score >= 85 ? 'text-teal-400' : 'text-amber-400'}`}>
                               {app.match_score}%
                             </span>
                           </div>
@@ -273,15 +272,15 @@ export default function RecruiterDashboard() {
       {/* Modal 1: Post Job 300 USDT Smart Contract Web3 Flow */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="glass-panel max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-gray-700 space-y-6 max-h-[90vh] overflow-y-auto">
+          <div className="glass-panel max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-cyan-500/30 space-y-6 max-h-[90vh] overflow-y-auto">
             
-            <div className="flex items-center justify-between border-b border-gray-800 pb-4">
+            <div className="flex items-center justify-between border-b border-cyan-500/20 pb-4">
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-brand-400" /> Post Job (300 USDT Web3 Paywall)
+                  <ShieldCheck className="w-5 h-5 text-cyan-400" /> Post Job (300 USDT Web3 Paywall)
                 </h2>
                 <p className="text-xs text-gray-400 mt-1">
-                  Triggers BEP20 USDT transfer to destination address <code className="text-emerald-400">{DESTINATION_WALLET.substring(0, 10)}...</code> on BSC.
+                  Triggers BEP20 USDT transfer to destination address <code className="text-teal-400">{DESTINATION_WALLET.substring(0, 10)}...</code> on BSC.
                 </p>
               </div>
               <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white font-bold text-lg">
@@ -299,7 +298,7 @@ export default function RecruiterDashboard() {
                   placeholder="e.g. Senior Smart Contract Architect"
                   value={title}
                   onChange={e => setTitle(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-dark-800 border border-gray-800 text-sm text-white focus:outline-none focus:border-brand-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-abyss-900 border border-cyan-500/20 text-sm text-white focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -312,7 +311,7 @@ export default function RecruiterDashboard() {
                     placeholder="e.g. Neural Agent Labs"
                     value={companyName}
                     onChange={e => setCompanyName(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-dark-800 border border-gray-800 text-sm text-white focus:outline-none focus:border-brand-500"
+                    className="w-full px-4 py-2.5 rounded-xl bg-abyss-900 border border-cyan-500/20 text-sm text-white focus:outline-none focus:border-cyan-500"
                   />
                 </div>
                 <div>
@@ -322,7 +321,7 @@ export default function RecruiterDashboard() {
                     placeholder="e.g. $130,000 - $170,000 USDT"
                     value={salaryRange}
                     onChange={e => setSalaryRange(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-dark-800 border border-gray-800 text-sm text-white focus:outline-none focus:border-brand-500"
+                    className="w-full px-4 py-2.5 rounded-xl bg-abyss-900 border border-cyan-500/20 text-sm text-white focus:outline-none focus:border-cyan-500"
                   />
                 </div>
               </div>
@@ -334,7 +333,7 @@ export default function RecruiterDashboard() {
                   placeholder="Solidity, Viem, Next.js, BSC, Python"
                   value={requirementsText}
                   onChange={e => setRequirementsText(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-dark-800 border border-gray-800 text-sm text-white focus:outline-none focus:border-brand-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-abyss-900 border border-cyan-500/20 text-sm text-white focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -346,7 +345,7 @@ export default function RecruiterDashboard() {
                   placeholder="Detailed job description and responsibilities..."
                   value={description}
                   onChange={e => setDescription(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-dark-800 border border-gray-800 text-sm text-white focus:outline-none focus:border-brand-500"
+                  className="w-full px-4 py-2.5 rounded-xl bg-abyss-900 border border-cyan-500/20 text-sm text-white focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -354,10 +353,10 @@ export default function RecruiterDashboard() {
               {txStatus !== 'idle' && (
                 <div className={`p-4 rounded-xl border text-xs space-y-1 ${
                   txStatus === 'success' 
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                    ? 'bg-teal-500/10 border-teal-500/30 text-teal-300'
                     : txStatus === 'failed'
                     ? 'bg-red-500/10 border-red-500/30 text-red-400'
-                    : 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300 animate-pulse'
+                    : 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300 animate-pulse'
                 }`}>
                   <div className="font-bold uppercase tracking-wider">Status: {txStatus}</div>
                   <div>{statusMessage}</div>
@@ -369,17 +368,17 @@ export default function RecruiterDashboard() {
                 </div>
               )}
 
-              <div className="pt-4 border-t border-gray-800 flex items-center justify-between">
+              <div className="pt-4 border-t border-cyan-500/20 flex items-center justify-between">
                 <div className="text-xs text-gray-400">
-                  Required: <span className="font-bold text-emerald-400">300 USDT (BEP20)</span>
+                  Required: <span className="font-bold text-teal-400">300 USDT (BEP20)</span>
                 </div>
 
                 <button
                   type="submit"
                   disabled={txLoading || txStatus === 'confirming' || txStatus === 'verifying'}
-                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-brand-500 to-emerald-600 hover:from-brand-600 text-dark-900 font-extrabold text-sm flex items-center gap-2 shadow-lg transition-all"
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 text-abyss-950 font-extrabold text-sm flex items-center gap-2 shadow-lg transition-all"
                 >
-                  <Wallet className="w-4 h-4 text-dark-900" /> Confirm 300 USDT Tx & Post
+                  <Wallet className="w-4 h-4 text-abyss-950" /> Confirm 300 USDT Tx & Post
                 </button>
               </div>
 
@@ -392,12 +391,12 @@ export default function RecruiterDashboard() {
       {/* Modal 2: Applicant View & AI Interview Transcript Drawer */}
       {selectedApp && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="glass-panel max-w-3xl w-full p-6 sm:p-8 rounded-3xl border border-gray-700 space-y-6 max-h-[90vh] overflow-y-auto">
+          <div className="glass-panel max-w-3xl w-full p-6 sm:p-8 rounded-3xl border border-cyan-500/30 space-y-6 max-h-[90vh] overflow-y-auto">
             
-            <div className="flex items-center justify-between border-b border-gray-800 pb-4">
+            <div className="flex items-center justify-between border-b border-cyan-500/20 pb-4">
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                  <UserCheck className="w-5 h-5 text-indigo-400" /> Candidate Evaluation Profile
+                  <UserCheck className="w-5 h-5 text-teal-400" /> Candidate Evaluation Profile
                 </h2>
                 <p className="text-xs text-gray-400 font-mono mt-1">
                   Wallet: {selectedApp.candidate_wallet}
@@ -410,17 +409,17 @@ export default function RecruiterDashboard() {
 
             {/* Match Score & Key Metrics */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="glass-panel p-4 rounded-xl border border-gray-800 text-center">
+              <div className="glass-panel p-4 rounded-xl border border-cyan-500/20 text-center">
                 <div className="text-xs text-gray-400">AI Match Score</div>
-                <div className="text-2xl font-extrabold text-brand-400 mt-1">{selectedApp.match_score}%</div>
+                <div className="text-2xl font-extrabold text-cyan-400 mt-1">{selectedApp.match_score}%</div>
               </div>
-              <div className="glass-panel p-4 rounded-xl border border-gray-800 text-center">
+              <div className="glass-panel p-4 rounded-xl border border-cyan-500/20 text-center">
                 <div className="text-xs text-gray-400">Interview Status</div>
                 <div className="text-base font-bold text-indigo-400 uppercase mt-2">{selectedApp.status}</div>
               </div>
-              <div className="glass-panel p-4 rounded-xl border border-gray-800 text-center">
+              <div className="glass-panel p-4 rounded-xl border border-cyan-500/20 text-center">
                 <div className="text-xs text-gray-400">Premium Boost</div>
-                <div className="text-base font-bold text-yellow-400 mt-2">
+                <div className="text-base font-bold text-amber-400 mt-2">
                   {selectedCandidate?.is_premium ? '30-Day Active' : 'Standard'}
                 </div>
               </div>
@@ -430,16 +429,16 @@ export default function RecruiterDashboard() {
             {selectedInterview ? (
               <div className="space-y-4">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Bot className="w-4 h-4 text-brand-400" /> 24/7 AI Interview Transcript & Evaluation
+                  <Bot className="w-4 h-4 text-cyan-400" /> 24/7 Atlantis AI Transcript & Evaluation
                 </h3>
 
                 {selectedInterview.ai_evaluation && (
-                  <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-xs space-y-2 text-indigo-200">
-                    <div className="font-bold text-sm text-indigo-300">
+                  <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-xs space-y-2 text-cyan-200">
+                    <div className="font-bold text-sm text-cyan-300">
                       Recommendation: {selectedInterview.ai_evaluation.overall_recommendation}
                     </div>
                     <div>{selectedInterview.summary}</div>
-                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-indigo-500/20 font-mono">
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-cyan-500/20 font-mono">
                       <div>Tech: {selectedInterview.ai_evaluation.technical_score}/100</div>
                       <div>Comm: {selectedInterview.ai_evaluation.communication_score}/100</div>
                       <div>Solve: {selectedInterview.ai_evaluation.problem_solving_score}/100</div>
@@ -447,13 +446,13 @@ export default function RecruiterDashboard() {
                   </div>
                 )}
 
-                <div className="space-y-3 bg-dark-800/60 p-4 rounded-2xl border border-gray-800 max-h-60 overflow-y-auto">
+                <div className="space-y-3 bg-abyss-900/60 p-4 rounded-2xl border border-cyan-500/20 max-h-60 overflow-y-auto">
                   {selectedInterview.transcript.map((msg, idx) => (
                     <div key={idx} className={`p-3 rounded-xl text-xs ${
-                      msg.role === 'ai' ? 'bg-dark-900 text-brand-300 border border-brand-500/20' : 'bg-gray-800 text-gray-200 ml-4'
+                      msg.role === 'ai' ? 'bg-abyss-950 text-cyan-300 border border-cyan-500/20' : 'bg-abyss-800 text-gray-200 ml-4'
                     }`}>
                       <div className="font-bold mb-1 uppercase text-[10px] tracking-wider text-gray-400">
-                        {msg.role === 'ai' ? 'AI Screening Bot' : 'Candidate'}
+                        {msg.role === 'ai' ? 'Atlantis AI Screening Bot' : 'Candidate'}
                       </div>
                       <div>{msg.content}</div>
                     </div>
@@ -467,7 +466,7 @@ export default function RecruiterDashboard() {
             )}
 
             {/* Pipeline Stage Updater */}
-            <div className="pt-4 border-t border-gray-800 flex items-center justify-between">
+            <div className="pt-4 border-t border-cyan-500/20 flex items-center justify-between">
               <span className="text-xs text-gray-400">Move candidate stage:</span>
               <div className="flex gap-2">
                 <button
@@ -476,7 +475,7 @@ export default function RecruiterDashboard() {
                     refreshData();
                     setSelectedApp(null);
                   }}
-                  className="px-4 py-2 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold hover:bg-emerald-500/30"
+                  className="px-4 py-2 rounded-lg bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-bold hover:bg-teal-500/30"
                 >
                   Shortlist
                 </button>

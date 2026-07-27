@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwind.config.js').Config} */
 module.exports = {
   darkMode: 'class',
   content: [
@@ -9,30 +9,36 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#ecfdf5',
-          100: '#d1fae5',
-          400: '#34d399',
-          500: '#10b981',
-          600: '#059669',
-          700: '#047857',
-          900: '#064e3b',
+        atlantis: {
+          50: '#ecfeff',
+          100: '#cffaff',
+          400: '#22d3ee',
+          500: '#06b6d4',
+          600: '#0891b2',
+          700: '#0e7490',
+          900: '#164e63',
+          950: '#083344',
         },
-        accent: {
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
+        teal: {
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
         },
-        dark: {
-          900: '#0b0f19',
-          800: '#111827',
-          700: '#1f2937',
-          600: '#374151',
+        gold: {
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#d97706',
+        },
+        abyss: {
+          950: '#030712',
+          900: '#0b1329',
+          800: '#111e38',
+          700: '#1e2d4a',
         }
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'glass-gradient': 'linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01))',
+        'atlantis-gradient': 'linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(20, 184, 166, 0.05))',
       },
     },
   },

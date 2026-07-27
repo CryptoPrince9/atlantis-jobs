@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
-  UserCheck, Sparkles, Zap, Award, Upload, CheckCircle2, 
-  FileText, ArrowRight, Wallet, ShieldCheck, Play
+  UserCheck, Sparkles, Zap, Award, CheckCircle2, 
+  ArrowRight, Play, Waves 
 } from 'lucide-react';
 import { useUsdtPayment } from '../../hooks/useUsdtPayment';
 import { db, Candidate, Job, Application } from '../../lib/db';
 import { AIEngine, ParsedResume } from '../../lib/aiEngine';
-import { CANDIDATE_BOOST_COST_USDT, DESTINATION_WALLET } from '../../lib/web3Config';
+import { CANDIDATE_BOOST_COST_USDT } from '../../lib/web3Config';
 
 export default function CandidateDashboard() {
   const { executePayment, loading: txLoading, error: txError, isConnected, address } = useUsdtPayment();
@@ -68,7 +68,7 @@ export default function CandidateDashboard() {
       });
 
       setCandidate(savedCand);
-      alert('Resume parsed & structured into Web3 candidate profile successfully!');
+      alert('Resume parsed & structured into Atlantis candidate profile successfully!');
     } catch (err: any) {
       alert('Parse error: ' + err.message);
     } finally {
@@ -154,48 +154,48 @@ export default function CandidateDashboard() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       
       {/* Header Banner */}
-      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-gray-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="glass-panel p-6 sm:p-8 rounded-3xl border border-cyan-500/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-400 text-xs font-bold mb-3 border border-indigo-500/30">
-            <UserCheck className="w-3.5 h-3.5" /> Free Candidate Hub & AI Parser
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-bold mb-3 border border-cyan-500/30">
+            <Waves className="w-3.5 h-3.5" /> Atlantis Candidate Hub & AI Parser
           </div>
-          <h1 className="text-3xl font-extrabold text-white">Candidate Career Portal</h1>
+          <h1 className="text-3xl font-extrabold text-white">Atlantis Candidate Career Portal</h1>
           <p className="text-gray-400 text-sm mt-1">
             Build your Web3 profile, parse CV with free open-source AI, and complete 24/7 automated chat interviews.
           </p>
         </div>
 
         {/* 10 USDT Boost Banner */}
-        <div className="glass-card p-5 rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 to-amber-500/5 max-w-sm w-full space-y-3">
+        <div className="glass-card p-5 rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-yellow-500/5 max-w-sm w-full space-y-3">
           <div className="flex items-center justify-between">
             <span className="font-bold text-white text-sm flex items-center gap-1.5">
-              <Award className="w-4 h-4 text-yellow-400" /> Premium Profile Boost
+              <Award className="w-4 h-4 text-amber-400" /> Premium Profile Boost
             </span>
-            <span className="text-xs font-mono font-bold text-yellow-400 px-2 py-0.5 rounded bg-yellow-500/20">
+            <span className="text-xs font-mono font-bold text-amber-400 px-2 py-0.5 rounded bg-amber-500/20">
               10 USDT / 30 Days
             </span>
           </div>
 
           <p className="text-xs text-gray-300">
-            Rank at the top of recruiter pipelines for 30 days via BEP20 USDT transaction to <code className="text-yellow-400">0xe2f8...14ec</code>.
+            Rank at the top of recruiter pipelines for 30 days via BEP20 USDT transaction to <code className="text-amber-400">0xe2f8...14ec</code>.
           </p>
 
           {candidate?.is_premium ? (
-            <div className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold text-center flex items-center justify-center gap-1.5">
+            <div className="p-2.5 rounded-xl bg-teal-500/20 border border-teal-500/40 text-teal-300 text-xs font-bold text-center flex items-center justify-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" /> 30-Day Boost Active!
             </div>
           ) : (
             <button
               onClick={handle10UsdtBoost}
               disabled={boostStatus === 'confirming' || boostStatus === 'verifying'}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 text-dark-900 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/20 transition-all hover:scale-105"
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 text-abyss-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all hover:scale-105"
             >
-              <Zap className="w-4 h-4 fill-dark-900" /> Boost Profile for 10 USDT
+              <Zap className="w-4 h-4 fill-abyss-950" /> Boost Profile for 10 USDT
             </button>
           )}
 
           {boostMsg && (
-            <div className="text-[11px] text-yellow-300 font-mono pt-1">
+            <div className="text-[11px] text-amber-300 font-mono pt-1">
               {boostMsg}
             </div>
           )}
@@ -207,9 +207,9 @@ export default function CandidateDashboard() {
         
         {/* Left Column: AI Resume Parser & Profile Builder */}
         <div className="space-y-6">
-          <div className="glass-panel p-6 rounded-2xl border border-gray-800 space-y-4">
+          <div className="glass-panel p-6 rounded-2xl border border-cyan-500/20 space-y-4">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-brand-400" /> AI Resume Parser
+              <Sparkles className="w-5 h-5 text-cyan-400" /> AI Resume Parser
             </h2>
             <p className="text-xs text-gray-400">
               Paste your raw CV text. Hugging Face / Groq open-source LLM will structure it into JSON.
@@ -222,24 +222,24 @@ export default function CandidateDashboard() {
                 placeholder="Paste full resume text here (Skills, Experience, Education...)"
                 value={rawCvText}
                 onChange={e => setRawCvText(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-dark-800 border border-gray-800 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-brand-500"
+                className="w-full px-4 py-3 rounded-xl bg-abyss-900 border border-cyan-500/20 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
               />
 
               <button
                 type="submit"
                 disabled={parsing}
-                className="w-full py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-dark-900 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-abyss-950 font-bold text-xs flex items-center justify-center gap-2 transition-colors"
               >
                 {parsing ? 'Parsing with Open LLM...' : 'Extract & Save Structured CV'}
               </button>
             </form>
 
             {candidate && (
-              <div className="pt-4 border-t border-gray-800 space-y-3">
-                <div className="text-xs font-bold text-brand-400">Extracted Skills:</div>
+              <div className="pt-4 border-t border-cyan-500/20 space-y-3">
+                <div className="text-xs font-bold text-cyan-400">Extracted Skills:</div>
                 <div className="flex flex-wrap gap-1.5">
                   {candidate.parsed_skills.map((skill, idx) => (
-                    <span key={idx} className="text-[11px] px-2 py-1 rounded bg-dark-800 text-gray-300 border border-gray-800">
+                    <span key={idx} className="text-[11px] px-2 py-1 rounded bg-abyss-900 text-gray-300 border border-cyan-500/20">
                       {skill}
                     </span>
                   ))}
@@ -258,13 +258,13 @@ export default function CandidateDashboard() {
               const existingApp = applications.find(a => a.job_id === job.id && a.candidate_wallet.toLowerCase() === (address || '0xCandidateWallet').toLowerCase());
               
               return (
-                <div key={job.id} className="glass-panel p-6 rounded-2xl border border-gray-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div key={job.id} className="glass-panel p-6 rounded-2xl border border-cyan-500/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="space-y-2">
                     <h3 className="font-bold text-base text-white">{job.title}</h3>
                     <p className="text-xs text-gray-400">{job.company_name} • {job.salary_range}</p>
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {job.requirements.map((req, idx) => (
-                        <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-dark-800 text-gray-400">
+                        <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-abyss-900 text-gray-400">
                           {req}
                         </span>
                       ))}
@@ -275,14 +275,14 @@ export default function CandidateDashboard() {
                     {existingApp ? (
                       <Link
                         href={`/interview/${existingApp.id}`}
-                        className="px-5 py-2.5 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold flex items-center gap-2 hover:bg-indigo-500/30"
+                        className="px-5 py-2.5 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-bold flex items-center gap-2 hover:bg-cyan-500/30"
                       >
-                        <Play className="w-4 h-4 fill-indigo-400" /> Enter AI Interview Room
+                        <Play className="w-4 h-4 fill-cyan-400" /> Enter AI Interview Room
                       </Link>
                     ) : (
                       <button
                         onClick={() => handleApplyAndStartInterview(job)}
-                        className="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-dark-900 font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition-all hover:scale-105"
+                        className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-abyss-950 font-extrabold text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition-all hover:scale-105"
                       >
                         Apply & Start AI Interview <ArrowRight className="w-4 h-4" />
                       </button>
