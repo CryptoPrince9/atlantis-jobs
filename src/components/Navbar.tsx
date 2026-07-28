@@ -4,20 +4,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { Waves, Wallet, ShieldCheck, UserCheck, Briefcase, Sparkles, LogOut, Compass, CheckCircle2, Zap, AlertCircle } from 'lucide-react';
-import { TARGET_CHAIN } from '../lib/web3Config';
+import { Waves, Wallet, UserCheck, Briefcase, LogOut, Compass, CheckCircle2, Zap, AlertCircle } from 'lucide-react';
 import { db } from '../lib/db';
 
 export function Navbar() {
   const pathname = usePathname();
   const { address, isConnected } = useAccount();
-  const { connectors, connectAsync } = useConnect();
   const { disconnect } = useDisconnect();
 
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [customWallet, setCustomWallet] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isConnecting, setIsConnecting] = useState(false);
 
   const activeWallet = address || customWallet;
   const isWalletActive = isConnected || !!customWallet;
@@ -29,58 +26,39 @@ export function Navbar() {
 
   const handleConnectInjected = async () => {
     setErrorMsg(null);
-    setIsConnecting(true);
+
+    // 1. Check if MetaMask / Injected provider exists in browser
+    if (typeof window === 'undefined' || !(window as any).ethereum) {
+      setErrorMsg('MetaMask extension not detected in this browser. Please install the MetaMask extension or use the Autonomous Instant Wallet.');
+      return;
+    }
+
+    const provider = (window as any).ethereum;
 
     try {
-      // 1. Direct browser ethereum request to trigger popup immediately
-      if (typeof window !== 'undefined' && (window as any).ethereum) {
-        const provider = (window as any).ethereum;
-        const accounts = await provider.request({ method: 'eth_requestAccounts' });
-        
-        if (accounts && accounts.length > 0) {
-          const userAddr = accounts[0];
-          setCustomWallet(userAddr);
+      // 2. Synchronous call on user click gesture - opens MetaMask popup immediately
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
 
-          // Try switching to BSC
-          try {
-            await provider.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0x38' }],
-            });
-          } catch (switchErr) {
-            console.warn('BSC chain switch warning:', switchErr);
-          }
-
-          db.saveCandidate({
-            wallet_address: userAddr,
-            name: 'MetaMask Candidate',
-            parsed_skills: ['Solidity', 'Next.js', 'EVM', 'BSC'],
-          });
-        }
-      }
-
-      // 2. Trigger Wagmi global connectAsync for full state sync
-      const targetConnector = connectors.find(
-        c => c.id === 'injected' || c.name.toLowerCase().includes('metamask')
-      ) || connectors[0];
-
-      if (targetConnector) {
-        await connectAsync({ connector: targetConnector });
-      }
-
-      setShowWalletModal(false);
-    } catch (e: any) {
-      console.warn('MetaMask connect error:', e);
-      // If user authorized via provider window, customWallet is active
-      if (typeof window !== 'undefined' && (window as any).ethereum && customWallet) {
+      if (accounts && accounts.length > 0) {
+        const userAddr = accounts[0];
+        setCustomWallet(userAddr);
         setShowWalletModal(false);
-      } else if (!((window as any).ethereum)) {
-        setErrorMsg('MetaMask extension not detected in this browser. Please install MetaMask or use the Autonomous Instant Wallet.');
-      } else {
-        setErrorMsg(e?.message || 'MetaMask connection request was rejected.');
+
+        db.saveCandidate({
+          wallet_address: userAddr,
+          name: 'MetaMask Candidate',
+          parsed_skills: ['Solidity', 'Next.js', 'EVM', 'BSC'],
+        });
+
+        // Try switching to BSC (Chain ID 56 / 0x38) in background
+        provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x38' }],
+        }).catch((err: any) => console.warn('BSC chain switch note:', err));
       }
-    } finally {
-      setIsConnecting(false);
+    } catch (e: any) {
+      console.warn('MetaMask user gesture request failed:', e);
+      setErrorMsg(e?.message || 'MetaMask connection request was closed or rejected.');
     }
   };
 
@@ -223,8 +201,7 @@ export function Navbar() {
             <div className="space-y-3">
               <button
                 onClick={handleConnectInjected}
-                disabled={isConnecting}
-                className="w-full p-4 rounded-2xl glass-card border border-cyan-500/20 hover:border-cyan-500/50 flex items-center justify-between transition-all group text-left disabled:opacity-50"
+                className="w-full p-4 rounded-2xl glass-card border border-cyan-500/20 hover:border-cyan-500/50 flex items-center justify-between transition-all group text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">
@@ -232,9 +209,9 @@ export function Navbar() {
                   </div>
                   <div>
                     <div className="font-bold text-sm text-white group-hover:text-cyan-400">
-                      {isConnecting ? 'Opening MetaMask...' : 'MetaMask / Injected Wallet'}
+                      MetaMask / Injected Wallet
                     </div>
-                    <div className="text-xs text-gray-400">Connect browser EVM extension</div>
+                    <div className="text-xs text-gray-400">Instant direct browser popup trigger</div>
                   </div>
                 </div>
                 <Zap className="w-4 h-4 text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
