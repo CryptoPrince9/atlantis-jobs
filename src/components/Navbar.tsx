@@ -4,18 +4,20 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
-import { Waves, Wallet, ShieldCheck, UserCheck, Briefcase, Sparkles, LogOut, Compass, CheckCircle2, Zap } from 'lucide-react';
+import { Waves, Wallet, ShieldCheck, UserCheck, Briefcase, Sparkles, LogOut, Compass, CheckCircle2, Zap, AlertCircle } from 'lucide-react';
 import { TARGET_CHAIN } from '../lib/web3Config';
 import { db } from '../lib/db';
 
 export function Navbar() {
   const pathname = usePathname();
   const { address, isConnected } = useAccount();
-  const { connectors, connect } = useConnect();
+  const { connectors, connectAsync } = useConnect();
   const { disconnect } = useDisconnect();
 
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [customWallet, setCustomWallet] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const activeWallet = address || customWallet;
   const isWalletActive = isConnected || !!customWallet;
@@ -26,29 +28,59 @@ export function Navbar() {
   };
 
   const handleConnectInjected = async () => {
+    setErrorMsg(null);
+    setIsConnecting(true);
+
     try {
-      // 1. Direct browser MetaMask request
+      // 1. Direct browser ethereum request to trigger popup immediately
       if (typeof window !== 'undefined' && (window as any).ethereum) {
-        const accounts = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+        const provider = (window as any).ethereum;
+        const accounts = await provider.request({ method: 'eth_requestAccounts' });
+        
         if (accounts && accounts.length > 0) {
-          setCustomWallet(accounts[0]);
+          const userAddr = accounts[0];
+          setCustomWallet(userAddr);
+
+          // Try switching to BSC
+          try {
+            await provider.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: '0x38' }],
+            });
+          } catch (switchErr) {
+            console.warn('BSC chain switch warning:', switchErr);
+          }
+
           db.saveCandidate({
-            wallet_address: accounts[0],
-            name: 'MetaMask Developer',
+            wallet_address: userAddr,
+            name: 'MetaMask Candidate',
             parsed_skills: ['Solidity', 'Next.js', 'EVM', 'BSC'],
           });
         }
       }
 
-      // 2. Wagmi connector trigger
-      if (connectors && connectors.length > 0) {
-        connect({ connector: connectors[0] });
+      // 2. Trigger Wagmi global connectAsync for full state sync
+      const targetConnector = connectors.find(
+        c => c.id === 'injected' || c.name.toLowerCase().includes('metamask')
+      ) || connectors[0];
+
+      if (targetConnector) {
+        await connectAsync({ connector: targetConnector });
       }
 
       setShowWalletModal(false);
     } catch (e: any) {
-      console.warn('MetaMask connect fallback:', e);
-      handleConnectSimulated();
+      console.warn('MetaMask connect error:', e);
+      // If user authorized via provider window, customWallet is active
+      if (typeof window !== 'undefined' && (window as any).ethereum && customWallet) {
+        setShowWalletModal(false);
+      } else if (!((window as any).ethereum)) {
+        setErrorMsg('MetaMask extension not detected in this browser. Please install MetaMask or use the Autonomous Instant Wallet.');
+      } else {
+        setErrorMsg(e?.message || 'MetaMask connection request was rejected.');
+      }
+    } finally {
+      setIsConnecting(false);
     }
   };
 
@@ -156,7 +188,7 @@ export function Navbar() {
               </div>
             ) : (
               <button
-                onClick={() => setShowWalletModal(true)}
+                onClick={() => { setErrorMsg(null); setShowWalletModal(true); }}
                 className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-abyss-950 font-extrabold text-sm flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition-all hover:scale-105"
               >
                 <Wallet className="w-4 h-4 text-abyss-950" />
@@ -181,18 +213,28 @@ export function Navbar() {
               </button>
             </div>
 
+            {errorMsg && (
+              <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-300 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                <div>{errorMsg}</div>
+              </div>
+            )}
+
             <div className="space-y-3">
               <button
                 onClick={handleConnectInjected}
-                className="w-full p-4 rounded-2xl glass-card border border-cyan-500/20 hover:border-cyan-500/50 flex items-center justify-between transition-all group"
+                disabled={isConnecting}
+                className="w-full p-4 rounded-2xl glass-card border border-cyan-500/20 hover:border-cyan-500/50 flex items-center justify-between transition-all group text-left disabled:opacity-50"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm">
                     🦊
                   </div>
-                  <div className="text-left">
-                    <div className="font-bold text-sm text-white group-hover:text-cyan-400">MetaMask / Injected Wallet</div>
-                    <div className="text-xs text-gray-400">Triggers MetaMask eth_requestAccounts</div>
+                  <div>
+                    <div className="font-bold text-sm text-white group-hover:text-cyan-400">
+                      {isConnecting ? 'Opening MetaMask...' : 'MetaMask / Injected Wallet'}
+                    </div>
+                    <div className="text-xs text-gray-400">Connect browser EVM extension</div>
                   </div>
                 </div>
                 <Zap className="w-4 h-4 text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -200,13 +242,13 @@ export function Navbar() {
 
               <button
                 onClick={handleConnectSimulated}
-                className="w-full p-4 rounded-2xl glass-card border border-teal-500/20 hover:border-teal-500/50 flex items-center justify-between transition-all group"
+                className="w-full p-4 rounded-2xl glass-card border border-teal-500/20 hover:border-teal-500/50 flex items-center justify-between transition-all group text-left"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-sm">
                     ⚡
                   </div>
-                  <div className="text-left">
+                  <div>
                     <div className="font-bold text-sm text-white group-hover:text-teal-300">Autonomous Instant EVM Wallet</div>
                     <div className="text-xs text-gray-400">1-Click instant Web3 connection</div>
                   </div>
